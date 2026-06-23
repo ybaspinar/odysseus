@@ -89,7 +89,7 @@ services:
     # tag blocks the whole app from starting. 2026.6.2 crashes on boot with
     # `KeyError: 'default_doi_resolver'`, failing the healthcheck (issue #1414).
     # Bump this deliberately after verifying a newer tag boots clean.
-    image: docker.io/searxng/searxng:2026.5.31-7159b8aed
+    image: docker.io/searxng/searxng:2026.6.10-de03f4eb1
     entrypoint:
       - /bin/sh
       - -c
@@ -101,6 +101,11 @@ services:
             secret="$$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
           fi
           sed "s|__SEARXNG_SECRET__|$$secret|g" /tmp/searxng-settings.yml.template > /etc/searxng/settings.yml
+          
+          # Inject the missing config keys so the container stops crashing
+          echo "default_doi_resolver: 'oadoi.org'" >> /etc/searxng/settings.yml
+          echo "doi_resolvers:" >> /etc/searxng/settings.yml
+          echo "  'oadoi.org': 'https://oadoi.org/'" >> /etc/searxng/settings.yml
         fi
         exec /usr/local/searxng/entrypoint.sh
     expose:
