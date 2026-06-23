@@ -158,6 +158,15 @@ services:
       - NTFY_BASE_URL=${NTFY_BASE_URL:-http://localhost:8091}
     restart: unless-stopped
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:?missing}
+    depends_on:
+      - odysseus
+    restart: unless-stopped
+
 volumes:
   searxng-data:
   chromadb-data:
